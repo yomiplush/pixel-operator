@@ -25,6 +25,7 @@ rm -rf "$APP" && mkdir -p "$APP/usr/bin" "$APP/usr/lib/python" "$APP/usr/lib/pix
 cp -a /tmp/po-python/. "$APP/usr/lib/python/"
 cp app.py automation.py core.py desktop_check.py i18n.py make_sample.py \
    test_core.py sample.png LICENSE README.md "$APP/usr/lib/pixel-operator/"
+cp -r palettes "$APP/usr/lib/pixel-operator/"
 
 mkdir -p "$APP/usr/share/applications" "$APP/usr/share/icons/hicolor/256x256/apps"
 cp packaging/pixel-operator.desktop "$APP/pixel-operator.desktop"

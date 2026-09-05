@@ -7,7 +7,7 @@ import threading
 import tempfile
 from pathlib import Path
 from PySide6 import QtCore, QtGui, QtWidgets as W
-from core import prepare, Calibration
+from core import prepare, Calibration, discover_palettes
 from automation import Desktop, draw, Cancelled
 from i18n import LANGUAGES, tr, set_language
 
@@ -131,8 +131,10 @@ class Window(W.QMainWindow):
         self.palette_label = pal_label
         self.palette = W.QComboBox()
         self.palette.addItem(tr('Auto'), 'auto')
-        for code in ('DB32', 'PICO-8', 'Sweetie-16', 'GameBoy'):
-            self.palette.addItem(code, code)
+        available, _ = discover_palettes()
+        self._palette_names = sorted(n for n in available if n != 'auto')
+        for name in self._palette_names:
+            self.palette.addItem(name, name)
         tone.addWidget(self.palette, 1, 4)
         self.palette.currentIndexChanged.connect(self.convert)
         self.preview = W.QLabel('')

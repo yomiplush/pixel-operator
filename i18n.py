@@ -175,6 +175,45 @@ T = {
  'Palette': {'ja': 'パレット', 'zh': '调色板', 'ru': 'Палитра', 'ko': '팔레트'},
  'Auto': {'ja': '自動（画像の色）', 'zh': '自动（图片颜色）', 'ru': 'Авто (цвета изображения)', 'ko': '자동(이미지 색상)'},
  'Unknown palette preset.': {'ja': '不明なパレットです。', 'zh': '未知的调色板。', 'ru': 'Неизвестная палитра.', 'ko': '알 수 없는 팔레트입니다.'},
+ 'Environment check': {'ja': '環境チェック', 'zh': '环境检查', 'ru': 'Проверка окружения', 'ko': '환경 확인'},
+ 'Checking environment...': {'ja': '環境をチェックしています…', 'zh': '正在检查环境…', 'ru': 'Проверка окружения…', 'ko': '환경을 확인하는 중…'},
+ 'DONE': {'ja': 'DONE', 'zh': '完成', 'ru': 'ГОТОВО', 'ko': '완료'},
+ 'All environment checks passed.': {
+   'ja': 'すべての環境チェックに合格しました。', 'zh': '所有环境检查均已通过。',
+   'ru': 'Все проверки окружения пройдены.', 'ko': '모든 환경 확인을 통과했습니다.'},
+ 'Warnings found:': {'ja': '警告があります:', 'zh': '存在警告:', 'ru': 'Обнаружены предупреждения:', 'ko': '경고가 있습니다:'},
+ 'Display server found (Wayland/X11)': {'ja': '表示サーバを検出（Wayland/X11）', 'zh': '已检测到显示服务器（Wayland/X11）',
+   'ru': 'Сервер отображения найден (Wayland/X11)', 'ko': '디스플레이 서버 감지됨 (Wayland/X11)'},
+ 'No display server found (need Wayland or X11).': {
+   'ja': '表示サーバが見つかりません（WaylandかX11が必要）。',
+   'zh': '未检测到显示服务器（需要 Wayland 或 X11）。',
+   'ru': 'Сервер отображения не найден (нужен Wayland или X11).',
+   'ko': '디스플레이 서버를 찾을 수 없습니다 (Wayland 또는 X11 필요).'},
+ 'LibreSprite found': {'ja': 'LibreSprite を検出', 'zh': '已检测到 LibreSprite', 'ru': 'LibreSprite найден', 'ko': 'LibreSprite 감지됨'},
+ 'LibreSprite not found. Install it to use the transfer feature.': {
+   'ja': 'LibreSprite が見つかりません。転写機能にはインストールが必要です。',
+   'zh': '未检测到 LibreSprite。使用转写功能需要安装。',
+   'ru': 'LibreSprite не найден. Установите его для функции переноса.',
+   'ko': 'LibreSprite를 찾을 수 없습니다. 전사 기능에 설치가 필요합니다.'},
+ 'Input method (IME) available': {'ja': '入力メソッド(IME)を利用可能', 'zh': '输入法(IME)可用',
+   'ru': 'Метод ввода (IME) доступен', 'ko': '입력기(IME) 사용 가능'},
+ 'No IME found; keyboard shortcuts may behave differently.': {
+   'ja': 'IMEが見つかりません。キーボード操作が通常と異なる場合があります。',
+   'zh': '未检测到输入法；快捷键行为可能不同。',
+   'ru': 'Метод ввода не найден; сочетания клавиш могут работать иначе.',
+   'ko': '입력기를 찾을 수 없습니다. 단축키 동작이 다를 수 있습니다.'},
+ '/dev/uinput writable': {'ja': '/dev/uinput に書き込み可能', 'zh': '/dev/uinput 可写',
+   'ru': '/dev/uinput доступен для записи', 'ko': '/dev/uinput 쓰기 가능'},
+ 'No write access to /dev/uinput. Join the uinput group or add a udev rule.': {
+   'ja': '/dev/uinput に書き込めません。uinputグループへ加入するかudevルールを追加してください。',
+   'zh': '无法写入 /dev/uinput。请加入 uinput 组或添加 udev 规则。',
+   'ru': 'Нет доступа к /dev/uinput. Войдите в группу uinput или добавьте правило udev.',
+   'ko': '/dev/uinput에 쓸 수 없습니다. uinput 그룹에 가입하거나 udev 규칙을 추가하세요.'},
+ 'Done. Transferred {count} pixels.': {
+   'ja': '完了。{count} ピクセルを転写しました。',
+   'zh': '完成。已转写 {count} 个像素。',
+   'ru': 'Готово. Перенесено {count} пикселей.',
+   'ko': '완료. {count} 픽셀을 전사했습니다.'},
 
  # -- automation.py ---------------------------------------
  'Stopped because focus, window position or the document changed.': {

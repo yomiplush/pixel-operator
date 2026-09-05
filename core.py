@@ -15,6 +15,7 @@ class Artwork:
 
 """Image preparation and deterministic drawing plans (Pillow)."""
 import colorsys
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from PIL import Image, ImageOps
@@ -36,6 +37,59 @@ PRESET_PALETTES = {
                    '566c86', '333c57'),
     'GameBoy': ('0f380f', '306230', '8bac0f', '9bbc0f'),
 }
+
+PALETTE_DIR = Path(__file__).resolve().parent/'palettes'
+_GPL_CACHE = {}
+
+# Nicer display names for the bundled preset files.
+_GPL_NAMES = {
+    'a64': 'A64', 'aap-16': 'AAP-16', 'aap-64': 'AAP-64',
+    'aap-splendor128': 'AAP-Splendor 128', 'apple-ii': 'Apple II',
+    'arne16': 'Arne16', 'arne32': 'Arne32', 'arne-paldac': 'Arne-Paldać',
+    'atari2600-ntsc': 'Atari 2600 (NTSC)', 'atari2600-pal': 'Atari 2600 (PAL)',
+    'cga': 'CGA', 'cg-arne': 'CG-Arne', 'commodore64': 'Commodore 64',
+    'commodore-plus4': 'Commodore Plus/4', 'commodore-vic20': 'Commodore VIC-20',
+    'copper-tech': 'Copper-Tech', 'cpc-boy': 'CPC-Boy', 'db16': 'DB16',
+    'db32': 'DB32', 'eroge-copper': 'Eroge-Copper', 'gameboy': 'Game Boy',
+    'gameboy-color-type1': 'Game Boy Color (type 1)', 'google-ui': 'Google UI',
+    'jmp': 'JMP', 'master-system': 'Master System', 'monokai': 'Monokai',
+    'nes': 'NES', 'nes-ntsc': 'NES (NTSC)', 'pico-8': 'PICO-8',
+    'psygnork': 'Psygnork', 'smile-basic': 'SmileBASIC', 'solarized': 'Solarized',
+    'teletext': 'Teletext', 'vga-13h': 'VGA 13h', 'web-safe-colors': 'Web Safe Colors',
+    'win16': 'Windows 16', 'x11': 'X11', 'zx-spectrum': 'ZX Spectrum',
+}
+
+
+def _load_gpl(path):
+    """Parse a GIMP (.gpl) palette file into a tuple of '#rrggbb' hex."""
+    if str(path) in _GPL_CACHE:
+        return _GPL_CACHE[str(path)]
+    colors = []
+    try:
+        for line in path.read_text(errors='ignore').splitlines():
+            m = re.match(r'\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})', line)
+            if m:
+                colors.append('%02x%02x%02x' % tuple(int(v) for v in m.groups()))
+    except OSError:
+        colors = []
+    colors = tuple(colors)
+    _GPL_CACHE[str(path)] = colors
+    return colors
+
+
+def discover_palettes():
+    """Return {display_name: (hex_colors, source_file)} merging built-ins with
+    the bundled Aseprite/LibreSprite preset .gpl files. Built-ins win."""
+    found = dict(PRESET_PALETTES)
+    meta = {name: None for name in found}
+    if PALETTE_DIR.is_dir():
+        for path in sorted(PALETTE_DIR.glob('*.gpl')):
+            name = _GPL_NAMES.get(path.stem, path.stem.replace('-', ' ').title())
+            hexes = _load_gpl(path)
+            if name not in found and hexes:
+                found[name] = hexes
+                meta[name] = str(path)
+    return found, meta
 
 
 def _parse_palette(palette):
@@ -77,7 +131,8 @@ def prepare(source, width=32, height=32, colors=16, dither=False,
     for adaptive colors). Tone arguments pre-adjust the image colors."""
     if not (2 <= width <= 256 and 2 <= height <= 256 and 2 <= colors <= 64):
         raise ValueError(tr('Width/height must be 2-256 and colors 2-64.'))
-    if palette not in PRESET_PALETTES:
+    available, _ = discover_palettes()
+    if palette not in available:
         raise ValueError(tr('Unknown palette preset.'))
     with Image.open(source) as opened:
         original = ImageOps.exif_transpose(opened).convert('RGBA')
@@ -95,7 +150,7 @@ def prepare(source, width=32, height=32, colors=16, dither=False,
     if not opaque:
         raise ValueError(tr('No opaque pixel to draw.'))
 
-    fixed = _parse_palette(PRESET_PALETTES[palette]) if palette != 'auto' else None
+    fixed = _parse_palette(available[palette]) if palette != 'auto' else None
     need_tune = bool(brightness or contrast or saturation or hue)
 
     def color_at(x, y):
