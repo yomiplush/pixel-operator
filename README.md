@@ -1,89 +1,127 @@
 # Pixel Operator
 
-画像を縮小・減色して、LibreSpriteへマウス操作でドット絵を描くGUI。
-元画像とは別の、透明キャンバスと色見本を持つ新規PNGを使用します。
-画面は **English / 日本語 / 中文 / русский / 조선말** に対応しており、起動時のOS言語を自動検出します。
-GUI右上の「言語 / Language / 语言 / Язык / 언어」でいつでも切り替えられます（再起動不要）。
+A GUI that downsizes and reduces the colors of an image, then draws it as
+pixel art into **LibreSprite** through automated mouse operations.
+It works on a fresh PNG separate from your source image, with a transparent
+canvas and a color-swatch row at the bottom.
 
-> 注: このリポジトリは開発用です。ローカルで動かす場合は下の「起動」を、
-> 配布用のAppImageビルドは「AppImage 配布」を参照してください。
+The UI is localized into **English / 日本語 / 中文 / русский / 조선말**.
+The OS language is detected automatically at startup, and you can switch it
+anytime from the language menu at the top-right of the window (no restart
+needed).
 
-## 起動
+> This repository is the source. To run from a checkout see
+> [Running from source](#running-from-source); for the portable build see
+> [AppImage distribution](#appimage-distribution).
+
+## Running from source
 
 ```sh
 python3 /home/yomiplush/Projects/pixel-operator/app.py
 ```
 
-依存: Python 3、PySide6、Pillow、python-xlib、LibreSprite。現在のPCには導入済み。
-実行中のデスクトップセッションから起動してください。
+Dependencies: Python 3, PySide6, Pillow, python-xlib, evdev, LibreSprite.
+Launch it from your running desktop session (Wayland or X11).
 
-## 使い方
+## Usage
 
-1. 「画像を開く」で元画像を選び、幅・高さ・色数を調整。まず32×32・16色がおすすめ。
-2. 「転写用画像をLibreSpriteで開く」。この画像の上部が描画領域、下端が色見本です。
-3. LibreSpriteで転写用画像を整数倍率で表示します。**おすすめは約3200%**（キー6で切替、Ctrl++ / Ctrl+- で調整）で、全体が画面内に収まるようにします。鉛筆（B）を1px、通常インク、不透明度255にし、対称描画をOFFにしてください。選択範囲も解除します。
-4. GUIの左上・右下指定ボタンをそれぞれ押し、5秒以内にLibreSpriteをクリックしてから、画像全体の該当ピクセル中心へマウスを置きます。右下は**色見本より右の空きピクセルを含む画像全体の右下端**です。
-5. 確認欄をチェックし開始。5秒以内にLibreSpriteの転写用画像へフォーカスを移します。
-6. スポイト（I）で色見本を拾い、鉛筆（B）で各ピクセルを実際にクリックします。
-7. 完了後、LibreSpriteで別名保存。下の色見本が不要ならキャンバスを指定した元の幅・高さに切り詰めてください。「変換PNGを保存」では色見本のない完成画像を直接保存できます。
+1. Click **Open image**, pick your source image, and adjust width, height and
+   color count. 32×32 with 16 colors is a good starting point.
+2. Click **Open transfer image in LibreSprite**. The upper part of this image
+   is the drawing area; the bottom row holds the color swatches.
+3. In LibreSprite show the transfer image at an integer zoom level that keeps
+   the whole image visible. **About 3200% is recommended** (press `6`, fine-tune
+   with `Ctrl++` / `Ctrl+-`). Then pick the pencil (`B`): 1 px brush, opacity
+   255, normal ink, mirroring **OFF**, and clear any selection.
+4. Press each coordinate button in the GUI, then within 5 s click LibreSprite
+   and place the mouse on the pixel center of the image's
+   **top-left / bottom-right** corner. The bottom-right is the very edge of the
+   whole transfer image, **including the empty pixel to the right of the swatches**.
+5. Tick the confirmation box and start. Within 5 s, give focus to the transfer
+   image in LibreSprite.
+6. Pixel Operator uses the eyedropper (`I`) to pick each swatch and the pencil
+   (`B`) to click every pixel for you.
+7. When finished, save under a new name in LibreSprite. If you do not want the
+   swatch row, trim the canvas to your original width/height. **Save PNG art**
+   writes the finished image without the swatches directly.
 
-## 停止
+## Stopping
 
-- ESCを1秒以内に2回押す。押しっぱなしは二度押しになりません。
-- 別のウィンドウへ切り替えると停止します。
-- GUIの停止ボタン、またはGUIを閉じる操作でも停止します。
-- 中断した描画は残ります。再開機能はありません。新しい転写用画像でやり直せます。
+- Press **ESC twice within 1 s** (holding it does not count as two presses).
+- Switch to another window.
+- Click the GUI's **Stop** button, or close the GUI.
 
-自動操作中は表示倍率・スクロール・ツール・レイヤー・タブを変更しないでください。
-ウィンドウ移動・サイズ変更・フォーカス変更を検知すると停止します。
-ショートカットを変更している場合、LibreSpriteのI＝スポイト、B＝鉛筆へ戻してください。
-透明度128未満は省略、それ以外は不透明色になります。画像の縦横比は保持し、余白は透明になります。
-約3200%前後がバランス良く、ピクセル中心を正確にクリックできます。画像が大きい場合は全体が収まる範囲で調整してください。
-mozc/fcitxが全角入力のままだとB・Iなどのキーが奪われて動作しません。自動操作の直前・各キー送信前にIME状態を確認し、activeの場合は半角（直接入力）へ自動で切り替えます。
-処理中に元画像を保存・上書きする操作は行いません。
+Do not change zoom, scroll, tool, layer or tab during automatic operation.
+Moving, resizing or defocusing the window stops the transfer.
+If you customized shortcuts, restore LibreSprite's `I` = eyedropper and
+`B` = pencil.
+Pixels with alpha below 128 are skipped; the rest are drawn opaque. The aspect
+ratio is preserved and margins stay transparent.
+About 3200% gives a good balance for clicking pixel centers accurately; for
+larger images, lower the zoom until everything fits.
+If mozc/fcitx is left in full-width input mode, keys such as `B`/`I` are
+swallowed by the IME and shortcuts stop working. Before each synthetic key
+press the app checks the IME state and, when active, switches it back to
+half-width (direct) input automatically.
+The source image is never saved over or modified during processing.
 
-## AppImage 配布（設計）
+## AppImage distribution
 
-Pixel-Operator本体（Python + PySide6 + Pillow + python-xlib + evdev）を
-1つのAppImageに同梱し、**実行環境を自動検出してセットアップ**します。
+The Pixel Operator application (Python + PySide6 + Pillow + python-xlib +
+evdev) is bundled into a single AppImage that **auto-detects the runtime
+environment** at launch.
 
-### 同梱 / 非同梱の割り切り
+### Bundled vs. external
 
-| 対象 | 扱い |
+| Item | Handling |
 |---|---|
-| Python 3、PySide6、Pillow、python-xlib、evdev、i18n データ | **AppImageへ同梱**（推定150〜250MB） |
-| LibreSprite 本体 | 同梱せず、**システムに導入済みのもの**を使う（AUR/ソースでのみ配布のため） |
-| X11/Wayland・`niri`・`fcitx5`・`/dev/uinput` 権限 | 起動時の自動検出で確認し、不足時は対処方法を表示 |
+| Python 3, PySide6, Pillow, python-xlib, evdev, i18n data | **Bundled inside the AppImage** (~150–250 MB) |
+| LibreSprite itself | **Not bundled** — the system-installed copy is used (LibreSprite is only distributed from AUR/source) |
+| X11/Wayland, `niri`, `fcitx5`, `/dev/uinput` permissions | Checked by runtime auto-detection, with hints if missing |
 
-### 自動検出（`packaging/AppRun`）
+### Auto-detection (`packaging/AppRun`)
 
-AppImage起動時に以下を検出し、GUI起動前/起動後に案内します。
+On startup the AppImage detects the following and prints guidance before the
+GUI opens:
 
-1. 表示サーバ — `$WAYLAND_DISPLAY` / `$DISPLAY`
-2. `libresprite` の有無（無ければインストール手順を案内）
-3. IME (`fcitx5-remote`) の有無 — あれば全角対策を自動適用
-4. `/dev/uinput` の書き込み権限（仮想キーボード用。無ければ `uinput` グループ加入を案内）
-5. Qt のプラットフォーム選択（Wayland があれば `wayland`、無ければ `xcb`）
+1. Display server — `$WAYLAND_DISPLAY` / `$DISPLAY`
+2. Whether `libresprite` is installed (with install hints if not)
+3. IME (`fcitx5-remote`) presence — the half-width guard is applied by the app
+4. Write access to `/dev/uinput` (needed for the synthetic keyboard; hints to
+   join the `uinput` group or add a udev rule)
+5. Qt platform — `wayland` when available, otherwise `xcb`
 
-### GitHub Actions 自動ビルド（`.github/workflows/appimage.yml`）
+### Automatic builds (`.github/workflows/appimage.yml`)
 
-- トリガー: `v*` タグのpush、および workflow_dispatch（手動）
-- Ubuntu上で `pydist` + PySide6等をAppDirへ展開し、`appimagetool` でAppImage化
-- 成果物を GitHub Release の `assets` へ自動アップロード
+- Triggered by pushing a `v*` tag, or manually via `workflow_dispatch`
+- Builds on Ubuntu: unpacks a relocatable Python + PySide6 etc. into an AppDir
+  and packages it with `appimagetool`
+- Uploads the artifact to the GitHub Release assets automatically
 
-手動リリース例:
+Manual release example:
+
 ```sh
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
-## 開発と検証
+## Development & tests
 
 ```sh
 cd /home/yomiplush/Projects/pixel-operator
 python3 -m unittest -v
 ```
 
-`core.py`: 画像処理と座標、`automation.py`: 入力・停止監視、`app.py`: GUI、`i18n.py`: 多言語翻訳。
-`desktop_check.py`: integration-transferという名前の新規テスト画像だけを操作する検証用。
-サンプルは本プロジェクトで作成したオリジナルのテスト用スプライトです。
-利用するOSS: [Pillow](https://github.com/python-pillow/Pillow)、[PySide6](https://doc.qt.io/qtforpython-6/)、[python-xlib](https://github.com/python-xlib/python-xlib)、[LibreSprite](https://github.com/LibreSprite/LibreSprite)。ライブラリ自体は再配布せず、インストール済みのものを利用します。
+- `core.py` — image processing and coordinates
+- `automation.py` — input & stop monitoring
+- `app.py` — GUI
+- `i18n.py` — localization (EN/JA/ZH/RU/KO)
+- `desktop_check.py` — on-desktop diagnostics that only operate on new
+  integration-transfer test documents
+- `packaging/` — AppImage launcher and build script
+
+The sample is an original sprite made for this project.
+Used OSS: [Pillow](https://github.com/python-pillow/Pillow),
+[PySide6](https://doc.qt.io/qtforpython-6/),
+[python-xlib](https://github.com/python-xlib/python-xlib),
+[LibreSprite](https://github.com/LibreSprite/LibreSprite). Libraries are not
+redistributed; installed copies are used.
