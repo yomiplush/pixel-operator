@@ -69,7 +69,8 @@ class Window(W.QMainWindow):
     def run_startup_setup(self):
         """Show a seekbar-style progress dialog while detecting the environment,
         checking dependencies and registering the start-menu entry, then show a
-        DONE popup with the report."""
+        DONE popup with the report. Runs synchronously (the checks are local and
+        fast) so it always reaches 100% instead of freezing mid-way."""
         if getattr(self, '_setup_done', False):
             return
         self._setup_done = True
@@ -78,37 +79,27 @@ class Window(W.QMainWindow):
         dialog.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         dialog.setMinimumDuration(0)
         dialog.setValue(0)
-
-        class Setup(QtCore.QThread):
-            done = QtCore.Signal()
-
-            def run(self):
-                try:
-                    self.report, self.ok = app_setup.environment_report()
-                except Exception as exc:
-                    self.report, self.ok = [str(exc)], False
-                self.done.emit()
-
-        def advance():
-            v = dialog.value()
-            if v < 3:
-                dialog.setValue(v + 1)
-                QtCore.QTimer.singleShot(120, advance)
-
-        def finish():
+        dialog.setCancelButton(None)
+        dialog.show()
+        W.QApplication.processEvents()
+        try:
+            dialog.setLabelText(tr('Checking environment...'))
+            dialog.setValue(1)
+            W.QApplication.processEvents()
+            report, ok = app_setup.environment_report()
+            dialog.setValue(3)
+            W.QApplication.processEvents()
+        except Exception as exc:
+            report, ok = [str(exc)], False
+        finally:
+            dialog.setValue(4)
+            W.QApplication.processEvents()
             dialog.close()
-            title = tr('Setup finished') + ' — ' + tr('DONE')
-            body = '\n'.join(worker.report)
-            if not worker.ok:
-                title += ' (' + tr('Warning') + ')'
-            W.QMessageBox.information(self, title, body)
-
-        worker = Setup()
-        worker.done.connect(finish)
-        QtCore.QTimer.singleShot(120, advance)
-        self._setup_dialog = dialog
-        self._setup_worker = worker
-        worker.start()
+        title = tr('Setup finished') + ' — ' + tr('DONE')
+        body = '\n'.join(report)
+        if not ok:
+            title += ' (' + tr('Warning') + ')'
+        W.QMessageBox.information(self, title, body)
 
     # ---- UI construction (English strings; retranslate() localizes them) ----
     def _build(self):
