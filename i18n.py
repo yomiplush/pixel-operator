@@ -209,11 +209,27 @@ T = {
    'zh': '无法写入 /dev/uinput。请加入 uinput 组或添加 udev 规则。',
    'ru': 'Нет доступа к /dev/uinput. Войдите в группу uinput или добавьте правило udev.',
    'ko': '/dev/uinput에 쓸 수 없습니다. uinput 그룹에 가입하거나 udev 규칙을 추가하세요.'},
- 'Done. Transferred {count} pixels.': {
-   'ja': '完了。{count} ピクセルを転写しました。',
-   'zh': '完成。已转写 {count} 个像素。',
-   'ru': 'Готово. Перенесено {count} пикселей.',
-   'ko': '완료. {count} 픽셀을 전사했습니다.'},
+  'Done. Transferred {count} pixels.': {
+    'ja': '完了。{count} ピクセルを転写しました。',
+    'zh': '完成。已转写 {count} 个像素。',
+    'ru': 'Готово. Перенесено {count} пикселей.',
+    'ko': '완료. {count} 픽셀을 전사했습니다.'},
+ 'Transfer finished': {'ja': '転写が完了しました', 'zh': '转写已完成', 'ru': 'Перенос завершён', 'ko': '전사가 완료되었습니다'},
+ 'Setup finished': {'ja': 'セットアップが完了しました', 'zh': '设置已完成', 'ru': 'Настройка завершена', 'ko': '설정이 완료되었습니다'},
+ 'Register launcher': {'ja': 'ランチャーに登録', 'zh': '注册启动器', 'ru': 'Регистрация в меню', 'ko': '런처 등록'},
+ 'Checking dependencies': {'ja': '依存関係をチェック', 'zh': '检查依赖', 'ru': 'Проверка зависимостей', 'ko': '의존성 확인'},
+ 'OK': {'ja': 'OK', 'zh': 'OK', 'ru': 'OK', 'ko': 'OK'},
+ 'Warning': {'ja': '警告', 'zh': '警告', 'ru': 'Внимание', 'ko': '경고'},
+ 'Installed': {'ja': '導入済み', 'zh': '已安装', 'ru': 'Установлено', 'ko': '설치됨'},
+ 'Missing': {'ja': '未導入', 'zh': '缺失', 'ru': 'Отсутствует', 'ko': '누락됨'},
+ 'Not needed for the transfer.': {'ja': '転写には不要です。', 'zh': '转写不需要。', 'ru': 'Для переноса не требуется.', 'ko': '전사에 필요하지 않습니다.'},
+ 'Registered to the start menu.': {
+   'ja': 'スタートメニューへ登録しました。', 'zh': '已注册到开始菜单。',
+   'ru': 'Зарегистрировано в меню приложений.', 'ko': '시작 메뉴에 등록했습니다.'},
+ 'Launcher registration failed: {exc}': {
+   'ja': 'ランチャー登録に失敗しました: {exc}', 'zh': '启动器注册失败: {exc}',
+   'ru': 'Не удалось зарегистрировать меню: {exc}', 'ko': '런처 등록 실패: {exc}'},
+ 'Not found': {'ja': '未検出', 'zh': '未检测到', 'ru': 'Не найдено', 'ko': '찾을 수 없음'},
 
  # -- automation.py ---------------------------------------
  'Stopped because focus, window position or the document changed.': {

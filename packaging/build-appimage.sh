@@ -23,7 +23,7 @@ echo "[3/6] assemble AppDir"
 APP=dist/Pixel-Operator-for-LibreSprite.AppDir
 rm -rf "$APP" && mkdir -p "$APP/usr/bin" "$APP/usr/lib/python" "$APP/usr/lib/pixel-operator"
 cp -a /tmp/po-python/. "$APP/usr/lib/python/"
-cp app.py automation.py core.py desktop_check.py i18n.py make_sample.py \
+cp app.py automation.py core.py desktop_check.py i18n.py setup.py make_sample.py \
    test_core.py sample.png LICENSE README.md "$APP/usr/lib/pixel-operator/"
 cp -r palettes "$APP/usr/lib/pixel-operator/"
 

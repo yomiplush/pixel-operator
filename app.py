@@ -10,6 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets as W
 from core import prepare, Calibration, discover_palettes
 from automation import Desktop, draw, Cancelled
 from i18n import LANGUAGES, tr, set_language
+import setup as app_setup
 
 ROOT = Path(__file__).resolve().parent
 
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parent
 class Worker(QtCore.QThread):
     progress = QtCore.Signal(int, str)
     result = QtCore.Signal(str)
+    done = QtCore.Signal(bool)
 
     def __init__(self, art, calibration, wid, delay):
         super().__init__()
@@ -27,10 +29,13 @@ class Worker(QtCore.QThread):
     def run(self):
         try:
             message = draw(*self.args, self.stop, self.progress.emit, self.delay)
+            self.done.emit(True)
         except Cancelled as exc:
             message = str(exc) + tr(' Partial drawing stays in LibreSprite.')
+            self.done.emit(False)
         except Exception as exc:
             message = tr('Operation stopped: {exc}').format(exc=exc)
+            self.done.emit(False)
         self.result.emit(message)
 
 
@@ -43,6 +48,7 @@ class Window(W.QMainWindow):
         self.art = None
         self.points = {}
         self.worker = None
+        self.worker_last = ''
         self.capture_pending = False
         self.session = tempfile.TemporaryDirectory(prefix='pixel-operator-')
         self.setStyleSheet('''QWidget { background:#171c29; color:#e5eaf5; font-size:14px; }
@@ -58,6 +64,51 @@ class Window(W.QMainWindow):
         self._build()
         self.retranslate()
         self.optimize_geometry()
+        QtCore.QTimer.singleShot(300, self.run_startup_setup)
+
+    def run_startup_setup(self):
+        """Show a seekbar-style progress dialog while detecting the environment,
+        checking dependencies and registering the start-menu entry, then show a
+        DONE popup with the report."""
+        if getattr(self, '_setup_done', False):
+            return
+        self._setup_done = True
+        dialog = W.QProgressDialog(tr('Checking environment...'), None, 0, 4, self)
+        dialog.setWindowTitle(tr('Environment check'))
+        dialog.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
+        dialog.setMinimumDuration(0)
+        dialog.setValue(0)
+
+        class Setup(QtCore.QThread):
+            done = QtCore.Signal()
+
+            def run(self):
+                try:
+                    self.report, self.ok = app_setup.environment_report()
+                except Exception as exc:
+                    self.report, self.ok = [str(exc)], False
+                self.done.emit()
+
+        def advance():
+            v = dialog.value()
+            if v < 3:
+                dialog.setValue(v + 1)
+                QtCore.QTimer.singleShot(120, advance)
+
+        def finish():
+            dialog.close()
+            title = tr('Setup finished') + ' — ' + tr('DONE')
+            body = '\n'.join(worker.report)
+            if not worker.ok:
+                title += ' (' + tr('Warning') + ')'
+            W.QMessageBox.information(self, title, body)
+
+        worker = Setup()
+        worker.done.connect(finish)
+        QtCore.QTimer.singleShot(120, advance)
+        self._setup_dialog = dialog
+        self._setup_worker = worker
+        worker.start()
 
     # ---- UI construction (English strings; retranslate() localizes them) ----
     def _build(self):
@@ -372,6 +423,7 @@ class Window(W.QMainWindow):
             self.worker = Worker(self.art, calibration, self.points['first'][1], self.delay.value())
             self.worker.progress.connect(self.progress)
             self.worker.result.connect(self.on_result)
+            self.worker.done.connect(self.on_done)
             self.worker.finished.connect(self.on_finished)
             self.controls.setEnabled(False)
             self.bar.setValue(0)
@@ -379,7 +431,13 @@ class Window(W.QMainWindow):
         except Exception as exc:
             self.error(exc)
 
+    def on_done(self, success):
+        if success and self.worker:
+            W.QMessageBox.information(self, tr('Transfer finished') + ' — ' + tr('DONE'),
+                self.worker_last if self.worker_last else tr('DONE'))
+
     def on_result(self, message):
+        self.worker_last = message
         self.status.setText(message)
 
     def on_finished(self):

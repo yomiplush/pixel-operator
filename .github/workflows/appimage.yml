@@ -46,7 +46,7 @@ jobs:
           APP=dist/Pixel-Operator-for-LibreSprite.AppDir
           mkdir -p "$APP/usr/bin" "$APP/usr/lib/python" "$APP/usr/lib/pixel-operator"
           cp -a /tmp/python/. "$APP/usr/lib/python/"
-          cp app.py automation.py core.py desktop_check.py i18n.py \
+          cp app.py automation.py core.py desktop_check.py i18n.py setup.py \
              make_sample.py test_core.py sample.png LICENSE README.md \
              "$APP/usr/lib/pixel-operator/"
           cp -r palettes "$APP/usr/lib/pixel-operator/"
