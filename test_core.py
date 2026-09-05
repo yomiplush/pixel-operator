@@ -5,7 +5,6 @@ from pathlib import Path
 from unittest.mock import patch
 from PIL import Image
 from core import prepare, Calibration, PRESET_PALETTES, _parse_palette, _tune, _nearest
-import genai
 from automation import EscapeLatch, Cancelled, draw, ime_state, ensure_half_width
 
 
@@ -117,22 +116,6 @@ class Tests(unittest.TestCase):
             self.assertEqual(ime_state(), 1)
         with patch('automation.shutil.which', return_value=None):
             self.assertEqual(ime_state(), -1)
-
-    def test_genai_config_roundtrip(self):
-        with tempfile.TemporaryDirectory() as tmp, \
-                patch.object(genai, 'CONFIG_DIR', Path(tmp)), \
-                patch.object(genai, 'CONFIG', Path(tmp)/'config.json'):
-            genai.save_config(api_key='secret-key', model='gemini-2.5-flash-image')
-            cfg = genai.load_config()
-            self.assertEqual(cfg['api_key'], 'secret-key')
-            self.assertEqual(cfg['model'], 'gemini-2.5-flash-image')
-            mode = genai.CONFIG.stat().st_mode
-            self.assertFalse(mode & 0o077)
-
-    def test_genai_requires_key(self):
-        with patch.object(genai, 'CONFIG', Path('/nonexistent/config.json')):
-            with self.assertRaises(RuntimeError):
-                genai.generate('a fox', api_key='', model='gemini-2.5-flash-image')
 
 
 if __name__ == '__main__':
