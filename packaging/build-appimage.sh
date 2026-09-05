@@ -27,51 +27,14 @@ cp app.py automation.py core.py desktop_check.py i18n.py make_sample.py \
    test_core.py sample.png LICENSE README.md "$APP/usr/lib/pixel-operator/"
 
 mkdir -p "$APP/usr/share/applications" "$APP/usr/share/icons/hicolor/256x256/apps"
-cat > "$APP/pixel-operator.desktop" <<'EOF'
-[Desktop Entry]
-Type=Application
-Name=Pixel Operator
-Comment=Convert an image to pixel art and draw it into LibreSprite
-Exec=pixel-operator
-Icon=pixel-operator
-Terminal=false
-Categories=Graphics;2DGraphics;
-EOF
-cp "$APP/pixel-operator.desktop" "$APP/usr/share/applications/"
-python3 - <<'PY'
-from PIL import Image
-Image.new('RGBA',(256,256),(63,153,140,255)).save(
-    'dist/Pixel-Operator.AppDir/usr/share/icons/hicolor/256x256/apps/pixel-operator.png')
-PY
+cp packaging/pixel-operator.desktop "$APP/pixel-operator.desktop"
+cp packaging/pixel-operator.desktop "$APP/usr/share/applications/"
+python3 -c "from PIL import Image; Image.new('RGBA',(256,256),(63,153,140,255)).save('dist/Pixel-Operator.AppDir/usr/share/icons/hicolor/256x256/apps/pixel-operator.png')"
 cp "$APP/usr/share/icons/hicolor/256x256/apps/pixel-operator.png" "$APP/"
 
-echo "[4/6] write AppRun"
-cat > "$APP/AppRun" <<'EOF'
-#!/bin/sh
-SELF="$(readlink -f "$0")"
-APPDIR="$(dirname "$SELF")"
-PY="$APPDIR/usr/lib/python"
-export PYTHONHOME="$PY"
-export PYTHONPATH="$PY/lib/python3.12/site-packages:$APPDIR/usr/lib/pixel-operator"
-export LD_LIBRARY_PATH="$PY/lib:$LD_LIBRARY_PATH"
-export QT_QPA_PLATFORM_PLUGIN_PATH="$PY/lib/python3.12/site-packages/PySide6/Qt/plugins"
-export QT_PLUGIN_PATH="$PY/lib/python3.12/site-packages/PySide6/Qt/plugins"
-if [ -z "$WAYLAND_DISPLAY" ] && [ -z "$DISPLAY" ]; then
-  echo "No display server found (need Wayland or X11)." >&2; exit 1
-fi
-command -v libresprite >/dev/null 2>&1 || \
-  echo "NOTE: LibreSprite not found. Install it to use the transfer feature." >&2
-[ -w /dev/uinput ] || \
-  echo "NOTE: /dev/uinput is not writable. Join the 'uinput' group or add a udev rule." >&2
-if [ -n "$WAYLAND_DISPLAY" ]; then
-  export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
-else
-  export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
-fi
-cd "$APPDIR/usr/lib/pixel-operator" || exit 1
-exec "$PY/bin/python3" app.py "$@"
-EOF
-chmod +x "$APP/AppRun"
+echo "[4/6] install AppRun"
+chmod +x packaging/AppRun
+cp packaging/AppRun "$APP/AppRun"
 
 echo "[5/6] fetch appimagetool"
 wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" \

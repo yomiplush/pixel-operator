@@ -1,0 +1,33 @@
+#!/bin/sh
+# Pixel Operator - AppRun: auto-detect the environment then launch the GUI.
+SELF="$(readlink -f "$0")"
+APPDIR="$(dirname "$SELF")"
+PY="$APPDIR/usr/lib/python"
+export PYTHONHOME="$PY"
+export PYTHONPATH="$PY/lib/python3.12/site-packages:$APPDIR/usr/lib/pixel-operator"
+export LD_LIBRARY_PATH="$PY/lib:$LD_LIBRARY_PATH"
+export QT_QPA_PLATFORM_PLUGIN_PATH="$PY/lib/python3.12/site-packages/PySide6/Qt/plugins"
+export QT_PLUGIN_PATH="$PY/lib/python3.12/site-packages/PySide6/Qt/plugins"
+
+# 1) Display server
+if [ -z "$WAYLAND_DISPLAY" ] && [ -z "$DISPLAY" ]; then
+  echo "No display server found (need Wayland or X11)." >&2
+  exit 1
+fi
+# 2) LibreSprite
+if ! command -v libresprite >/dev/null 2>&1; then
+  echo "NOTE: LibreSprite not found. Install it (e.g. from AUR or source) to use the transfer feature." >&2
+fi
+# 3) IME half-width guard is handled inside the app (fcitx5-remote) when present.
+# 4) /dev/uinput permission
+if [ ! -w /dev/uinput ]; then
+  echo "NOTE: /dev/uinput is not writable. Join the 'uinput' group or add a udev rule for synthetic keyboard input." >&2
+fi
+# 5) Qt platform: prefer Wayland, fall back to xcb
+if [ -n "$WAYLAND_DISPLAY" ]; then
+  export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
+else
+  export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
+fi
+cd "$APPDIR/usr/lib/pixel-operator" || exit 1
+exec "$PY/bin/python3" app.py "$@"
