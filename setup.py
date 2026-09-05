@@ -1,4 +1,4 @@
-"""Startup environment detection & one-shot setup used by the GUI.
+"""Startup environment detection & start-menu registration used by the GUI.
 Runs quickly and prints a small "neofetch-like" report so the app can show a
 DONE popup after registering itself in the start menu."""
 import os
@@ -30,6 +30,7 @@ def _display():
 
 def _desktop():
     return os.environ.get('XDG_CURRENT_DESKTOP') or os.environ.get('DESKTOP_SESSION') or '-'
+
 
 def _exec_path():
     """Return the path a start-menu entry should exec."""
