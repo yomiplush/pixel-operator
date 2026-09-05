@@ -148,6 +148,11 @@ def draw(art, calibration, wid, stop, progress, delay=.035, countdown=5):
             progress(0, tr('{second} s to start. Click the LibreSprite transfer image.').format(second=second))
             if stop.wait(1):
                 raise Cancelled(reason[-1] if reason else tr('Stopped.'))
+        # The 5 s countdown is over and LibreSprite now has focus. A full-width
+        # (kana) IME would swallow the B/I shortcuts, so detect it right now and
+        # switch back to half-width direct input before the first key.
+        ensure_half_width()
+        time.sleep(.15)
         signature = desktop.signature(wid)
         x, y, w, h, _ = signature
         for point in (calibration.first, calibration.last):
