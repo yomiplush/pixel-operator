@@ -175,6 +175,28 @@ T = {
  'Palette': {'ja': 'パレット', 'zh': '调色板', 'ru': 'Палитра', 'ko': '팔레트'},
  'Auto': {'ja': '自動（画像の色）', 'zh': '自动（图片颜色）', 'ru': 'Авто (цвета изображения)', 'ko': '자동(이미지 색상)'},
  'Unknown palette preset.': {'ja': '不明なパレットです。', 'zh': '未知的调色板。', 'ru': 'Неизвестная палитра.', 'ko': '알 수 없는 팔레트입니다.'},
+ 'Generate image with AI (Gemini)': {
+   'ja': 'AIで画像を生成（Gemini）', 'zh': '用AI生成图片（Gemini）',
+   'ru': 'Сгенерировать изображение ИИ (Gemini)', 'ko': 'AI로 이미지 생성 (Gemini)'},
+ 'Prompt': {'ja': 'プロンプト', 'zh': '提示词', 'ru': 'Промпт', 'ko': '프롬프트'},
+ 'API key': {'ja': 'APIキー', 'zh': 'API 密钥', 'ru': 'API-ключ', 'ko': 'API 키'},
+ 'Model': {'ja': 'モデル', 'zh': '模型', 'ru': 'Модель', 'ko': '모델'},
+ 'Generate': {'ja': '生成', 'zh': '生成', 'ru': 'Создать', 'ko': '생성'},
+ 'Free key: Google AI Studio (aistudio.google.com/apikey)': {
+   'ja': '無料キー: Google AI Studio（aistudio.google.com/apikey）',
+   'zh': '免费密钥：Google AI Studio（aistudio.google.com/apikey）',
+   'ru': 'Бесплатный ключ: Google AI Studio (aistudio.google.com/apikey)',
+   'ko': '무료 키: Google AI Studio (aistudio.google.com/apikey)'},
+ 'Generated image is ready. Open it to start the transfer.': {
+   'ja': '生成した画像を読み込みました。転写用画像を開いて開始してください。',
+   'zh': '已载入生成的图片。请打开转写用图片并开始。',
+   'ru': 'Сгенерированное изображение загружено. Откройте шаблон и начните.',
+   'ko': '생성된 이미지를 불러왔습니다. 전사용 이미지를 열어 시작하세요.'},
+ 'Use free-tier Gemini models only to avoid charges.': {
+   'ja': '課金されないよう、無料枠のGeminiモデルのみ使用します。',
+   'zh': '仅使用免费版 Gemini 模型以避免费用。',
+   'ru': 'Используются только бесплатные модели Gemini, чтобы избежать расходов.',
+   'ko': '요금이 발생하지 않도록 무료 Gemini 모델만 사용합니다.'},
 
  # -- automation.py ---------------------------------------
  'Stopped because focus, window position or the document changed.': {

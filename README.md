@@ -32,6 +32,12 @@ Launch it from your running desktop session (Wayland or X11).
    - **Palette**: choose `Auto` (adaptive colors from the image) or a preset
      palette (DB32, PICO-8, Sweetie-16, GameBoy). Preset palettes map every
      pixel to the nearest fixed color.
+   - **Generate with AI (Gemini)**: type a prompt (e.g. "cute fox", "chibi
+     cat", "furry") and the app downloads a free-tier Gemini image, then feeds
+     it through the same pipeline. Only free-tier models are offered so you do
+     not risk charges. Get a free API key at Google AI Studio
+     (aistudio.google.com/apikey); it is stored in
+     `~/.config/pixel-operator/config.json` (0600) and never committed.
 2. Click **Open transfer image in LibreSprite**. The upper part of this image
    is the drawing area; the bottom row holds the color swatches.
 3. In LibreSprite show the transfer image at an integer zoom level that keeps

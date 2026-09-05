@@ -10,6 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets as W
 from core import prepare, Calibration
 from automation import Desktop, draw, Cancelled
 from i18n import LANGUAGES, tr, set_language
+import genai
 
 ROOT = Path(__file__).resolve().parent
 
@@ -89,6 +90,8 @@ class Window(W.QMainWindow):
         self.open_button.clicked.connect(self.open_image)
         self.sample_button = self.button(row, '')
         self.sample_button.clicked.connect(self.sample)
+        self.ai_button = self.button(row, '')
+        self.ai_button.clicked.connect(self.ai_generate)
         self.width, self.width_label = self.spin(row, '', 2, 256, 32, 'width')
         self.height, self.height_label = self.spin(row, '', 2, 256, 32, 'height')
         self.colors, self.colors_label = self.spin(row, '', 2, 64, 16, 'colors')
@@ -194,6 +197,7 @@ class Window(W.QMainWindow):
         self.file_label.setText(tr('Choose an image (PNG / JPEG / WebP / BMP / GIF)'))
         self.open_button.setText(tr('Open image'))
         self.sample_button.setText(tr('Sample'))
+        self.ai_button.setText(tr('Generate image with AI (Gemini)'))
         self.width_label.setText(tr('Width'))
         self.height_label.setText(tr('Height'))
         self.colors_label.setText(tr('Colors'))
@@ -265,6 +269,95 @@ class Window(W.QMainWindow):
     def sample(self):
         self.source = str(ROOT/'sample.png')
         self.convert()
+
+    def ai_generate(self):
+        cfg = genai.load_config()
+        dialog = W.QDialog(self)
+        dialog.setWindowTitle(tr('Generate image with AI (Gemini)'))
+        form = W.QVBoxLayout(dialog)
+        form.addWidget(W.QLabel(tr('Generate image with AI (Gemini)')))
+        note = W.QLabel(tr('Use free-tier Gemini models only to avoid charges.'))
+        note.setWordWrap(True)
+        note.setStyleSheet('color:#8fdfca')
+        form.addWidget(note)
+        prompt_label = W.QLabel(tr('Prompt'))
+        form.addWidget(prompt_label)
+        prompt = W.QPlainTextEdit()
+        prompt.setPlaceholderText('a cute fox, chibi, pixel friendly, clean background...')
+        prompt.setFixedHeight(90)
+        form.addWidget(prompt)
+        key_label = W.QLabel(tr('API key') + ' — ' + tr('Free key: Google AI Studio (aistudio.google.com/apikey)'))
+        key_label.setWordWrap(True)
+        form.addWidget(key_label)
+        key = W.QLineEdit(cfg['api_key'])
+        key.setEchoMode(W.QLineEdit.EchoMode.Password)
+        form.addWidget(key)
+        row = W.QHBoxLayout()
+        form.addLayout(row)
+        row.addWidget(W.QLabel(tr('Model')))
+        model = W.QComboBox()
+        model.addItems(genai.FREE_MODELS)
+        if cfg['model'] in genai.FREE_MODELS:
+            model.setCurrentText(cfg['model'])
+        row.addWidget(model)
+        row.addStretch(1)
+        status = W.QLabel('')
+        status.setWordWrap(True)
+        form.addWidget(status)
+        buttons = W.QHBoxLayout()
+        form.addLayout(buttons)
+        cancel = W.QPushButton('Close')
+        generate = W.QPushButton(tr('Generate'))
+        buttons.addStretch(1)
+        buttons.addWidget(cancel)
+        buttons.addWidget(generate)
+
+        def run():
+            status.setText('...')
+            W.QApplication.processEvents()
+
+            class Gen(QtCore.QThread):
+                done = QtCore.Signal(object)
+                failed = QtCore.Signal(str)
+
+                def __init__(self, text, key, mdl):
+                    super().__init__()
+                    self.text, self.key, self.mdl = text, key, mdl
+
+                def run(self):
+                    try:
+                        path = Path(self.session)/f'ai-{QtCore.QDateTime.currentMSecsSinceEpoch()}.png'
+                        path.write_bytes(genai.generate(self.text, api_key=self.key, model=self.mdl))
+                        self.done.emit(str(path))
+                    except Exception as exc:
+                        self.failed.emit(str(exc))
+
+            worker = Gen(prompt.toPlainText().strip(), key.text().strip(), model.currentText())
+            worker.session = self.session.name
+            try:
+                genai.save_config(key.text().strip(), model.currentText())
+            except Exception:
+                pass
+
+            def ok(path):
+                self.source = path
+                self.convert()
+                status.setText(tr('Generated image is ready. Open it to start the transfer.'))
+                buttons.setEnabled(True)
+
+            def err(msg):
+                status.setText(msg)
+                buttons.setEnabled(True)
+
+            worker.done.connect(ok)
+            worker.failed.connect(err)
+            worker.start()
+            self._gen = worker  # keep reference
+
+        generate.clicked.connect(run)
+        cancel.clicked.connect(dialog.accept)
+        dialog.resize(560, 380)
+        dialog.exec()
 
     def convert(self):
         if not self.source:
