@@ -27,6 +27,11 @@ Launch it from your running desktop session (Wayland or X11).
 
 1. Click **Open image**, pick your source image, and adjust width, height and
    color count. 32×32 with 16 colors is a good starting point.
+   - **Tone**: brightness / contrast / saturation / hue sliders change the
+     look before quantization.
+   - **Palette**: choose `Auto` (adaptive colors from the image) or a preset
+     palette (DB32, PICO-8, Sweetie-16, GameBoy). Preset palettes map every
+     pixel to the nearest fixed color.
 2. Click **Open transfer image in LibreSprite**. The upper part of this image
    is the drawing area; the bottom row holds the color swatches.
 3. In LibreSprite show the transfer image at an integer zoom level that keeps

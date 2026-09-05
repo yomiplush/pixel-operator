@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 from PIL import Image
-from core import prepare, Calibration
+from core import prepare, Calibration, PRESET_PALETTES, _parse_palette, _tune, _nearest
 from automation import EscapeLatch, Cancelled, draw, ime_state, ensure_half_width
 
 
@@ -67,6 +67,31 @@ class Tests(unittest.TestCase):
         Image.new('RGBA', (4, 4)).save(self.path)
         with self.assertRaises(ValueError):
             prepare(self.path, 4, 4, 2)
+
+    def test_tone_adjustment(self):
+        self.assertEqual(_tune((200, 100, 50), brightness=-100), (0, 0, 0))
+        self.assertEqual(_tune((128, 128, 128), saturation=100), (128, 128, 128))
+        # hue shift rotates pure red towards green when +120 degrees.
+        r, g, b = _tune((255, 0, 0), hue=120)
+        self.assertGreater(g, 200)
+        self.assertLess(r, 60)
+
+    def test_nearest_palette(self):
+        pal = _parse_palette(PRESET_PALETTES['GameBoy'])
+        self.assertEqual(len(pal), 4)
+        self.assertEqual(_nearest((255, 255, 255), pal), (155, 188, 15))
+        self.assertEqual(_nearest((0, 0, 0), pal), (15, 56, 15))
+
+    def test_preset_palette_limits_colors(self):
+        art = prepare(self.path, 4, 4, 16, palette='GameBoy')
+        used = {c for c, _ in art.groups}
+        allowed = set(_parse_palette(PRESET_PALETTES['GameBoy']))
+        self.assertTrue(used <= allowed)
+        self.assertLessEqual(len(used), 4)
+
+    def test_unknown_palette_rejected(self):
+        with self.assertRaises(ValueError):
+            prepare(self.path, 4, 4, 2, palette='Nope')
 
     @patch('automation.shutil.which', return_value='/usr/bin/fcitx5-remote')
     @patch('automation.subprocess.run')

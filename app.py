@@ -97,6 +97,32 @@ class Window(W.QMainWindow):
         for control in (self.width, self.height, self.colors):
             control.valueChanged.connect(self.convert)
         self.dither.toggled.connect(self.convert)
+        # Tone / palette controls
+        tone = W.QGridLayout()
+        controls.addLayout(tone)
+        self.tone_controls = {}
+        labels = [('Brightness', 'brightness', -100, 100), ('Contrast', 'contrast', -100, 100),
+                  ('Saturation', 'saturation', -100, 100), ('Hue', 'hue', -180, 180)]
+        for col, (key, name, lo, hi) in enumerate(labels):
+            lab = W.QLabel('')
+            lab.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
+            tone.addWidget(lab, 0, col)
+            spin = W.QSpinBox()
+            spin.setRange(lo, hi)
+            spin.setValue(0)
+            spin.setSuffix('')
+            tone.addWidget(spin, 1, col)
+            self.tone_controls[name] = (lab, spin)
+            spin.valueChanged.connect(self.convert)
+        pal_label = W.QLabel('')
+        tone.addWidget(pal_label, 0, 4)
+        self.palette_label = pal_label
+        self.palette = W.QComboBox()
+        self.palette.addItem(tr('Auto'), 'auto')
+        for code in ('DB32', 'PICO-8', 'Sweetie-16', 'GameBoy'):
+            self.palette.addItem(code, code)
+        tone.addWidget(self.palette, 1, 4)
+        self.palette.currentIndexChanged.connect(self.convert)
         self.preview = W.QLabel('')
         self.preview.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.preview.setMinimumHeight(230)
@@ -172,6 +198,12 @@ class Window(W.QMainWindow):
         self.height_label.setText(tr('Height'))
         self.colors_label.setText(tr('Colors'))
         self.dither.setText(tr('Dither'))
+        self.tone_controls['brightness'][0].setText(tr('Brightness'))
+        self.tone_controls['contrast'][0].setText(tr('Contrast'))
+        self.tone_controls['saturation'][0].setText(tr('Saturation'))
+        self.tone_controls['hue'][0].setText(tr('Hue'))
+        self.palette_label.setText(tr('Palette'))
+        self.palette.setItemText(self.palette.findData('auto'), tr('Auto'))
         self.preview.setText(tr('Preview'))
         self.export_button.setText(tr('Save PNG art'))
         self.template_button.setText(tr('Open transfer image in LibreSprite'))
@@ -243,7 +275,12 @@ class Window(W.QMainWindow):
         self.refresh_status()
         try:
             self.art = prepare(self.source, self.width.value(), self.height.value(),
-                self.colors.value(), self.dither.isChecked())
+                self.colors.value(), self.dither.isChecked(),
+                brightness=self.tone_controls['brightness'][1].value(),
+                contrast=self.tone_controls['contrast'][1].value(),
+                saturation=self.tone_controls['saturation'][1].value(),
+                hue=self.tone_controls['hue'][1].value(),
+                palette=self.palette.currentData())
             self.file_label.setText(Path(self.source).name)
             data = self.art.image.tobytes()
             qimage = QtGui.QImage(data, self.art.image.width, self.art.image.height,
