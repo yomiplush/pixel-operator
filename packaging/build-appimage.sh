@@ -20,7 +20,7 @@ echo "[2/6] install deps"
 /tmp/po-python/bin/python3 -m pip install --no-cache-dir PySide6==6.7.3 Pillow python-xlib evdev
 
 echo "[3/6] assemble AppDir"
-APP=dist/Pixel-Operator.AppDir
+APP=dist/Pixel-Operator-for-LibreSprite.AppDir
 rm -rf "$APP" && mkdir -p "$APP/usr/bin" "$APP/usr/lib/python" "$APP/usr/lib/pixel-operator"
 cp -a /tmp/po-python/. "$APP/usr/lib/python/"
 cp app.py automation.py core.py desktop_check.py i18n.py make_sample.py \
@@ -29,7 +29,7 @@ cp app.py automation.py core.py desktop_check.py i18n.py make_sample.py \
 mkdir -p "$APP/usr/share/applications" "$APP/usr/share/icons/hicolor/256x256/apps"
 cp packaging/pixel-operator.desktop "$APP/pixel-operator.desktop"
 cp packaging/pixel-operator.desktop "$APP/usr/share/applications/"
-python3 -c "from PIL import Image; Image.new('RGBA',(256,256),(63,153,140,255)).save('dist/Pixel-Operator.AppDir/usr/share/icons/hicolor/256x256/apps/pixel-operator.png')"
+python3 -c "from PIL import Image; Image.new('RGBA',(256,256),(63,153,140,255)).save('dist/Pixel-Operator-for-LibreSprite.AppDir/usr/share/icons/hicolor/256x256/apps/pixel-operator.png')"
 cp "$APP/usr/share/icons/hicolor/256x256/apps/pixel-operator.png" "$APP/"
 
 echo "[4/6] install AppRun"
@@ -42,6 +42,6 @@ wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/ap
 
 echo "[6/6] package"
 ARCH=x86_64 /tmp/appimagetool --appimage-extract-and-run \
-  "$APP" dist/Pixel-Operator-x86_64.AppImage
-ls -lh dist/Pixel-Operator-x86_64.AppImage
+  "$APP" dist/Pixel-Operator-for-LibreSprite-x86_64.AppImage
+ls -lh dist/Pixel-Operator-for-LibreSprite-x86_64.AppImage
 echo "done"

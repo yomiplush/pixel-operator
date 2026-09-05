@@ -39,7 +39,7 @@ elif mode in ('key', 'draw', 'shot', 'click', 'native'):
         from evdev import UInput, ecodes as E, AbsInfo
         caps = {E.EV_KEY: [E.BTN_LEFT, E.BTN_RIGHT, E.BTN_MIDDLE], E.EV_ABS: [
             (E.ABS_X, AbsInfo(0,0,65535,0,0,0)), (E.ABS_Y, AbsInfo(0,0,65535,0,0,0))]}
-        with UInput(caps, name='Pixel Operator Mouse') as mouse:
+        with UInput(caps, name='Pixel Operator for LibreSprite Mouse') as mouse:
             time.sleep(1)
             mouse.write(E.EV_ABS,E.ABS_X,round(1526/1920*65535))
             mouse.write(E.EV_ABS,E.ABS_Y,round(607/1080*65535))

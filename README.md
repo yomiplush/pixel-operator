@@ -1,4 +1,4 @@
-# Pixel Operator
+# Pixel Operator for LibreSprite
 
 A GUI that downsizes and reduces the colors of an image, then draws it as
 pixel art into **LibreSprite** through automated mouse operations.
@@ -39,7 +39,7 @@ Launch it from your running desktop session (Wayland or X11).
    whole transfer image, **including the empty pixel to the right of the swatches**.
 5. Tick the confirmation box and start. Within 5 s, give focus to the transfer
    image in LibreSprite.
-6. Pixel Operator uses the eyedropper (`I`) to pick each swatch and the pencil
+6. Pixel Operator for LibreSprite uses the eyedropper (`I`) to pick each swatch and the pencil
    (`B`) to click every pixel for you.
 7. When finished, save under a new name in LibreSprite. If you do not want the
    swatch row, trim the canvas to your original width/height. **Save PNG art**
@@ -67,7 +67,7 @@ The source image is never saved over or modified during processing.
 
 ## AppImage distribution
 
-The Pixel Operator application (Python + PySide6 + Pillow + python-xlib +
+The Pixel Operator for LibreSprite application (Python + PySide6 + Pillow + python-xlib +
 evdev) is bundled into a single AppImage that **auto-detects the runtime
 environment** at launch.
 

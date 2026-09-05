@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Pixel Operator
-Name[ja]=Pixel Operator
+Name=Pixel Operator for LibreSprite
+Name[ja]=Pixel Operator for LibreSprite
 Comment=Convert an image to pixel art and draw it into LibreSprite
 Comment[ja]=画像をドット絵に変換してLibreSpriteへ自動転写
 Exec=pixel-operator

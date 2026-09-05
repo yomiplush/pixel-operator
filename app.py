@@ -38,7 +38,7 @@ class Window(W.QMainWindow):
     def __init__(self):
         super().__init__()
         set_language(_lang_code())
-        self.setWindowTitle('Pixel Operator — LibreSprite')
+        self.setWindowTitle('Pixel Operator for LibreSprite')
         self.source = None
         self.art = None
         self.points = {}
@@ -61,8 +61,8 @@ class Window(W.QMainWindow):
         body = W.QWidget()
         self.setCentralWidget(body)
         self.layout = W.QVBoxLayout(body)
-        self.title = W.QLabel('Pixel Operator')
-        self.title.setStyleSheet('font-size:28px; font-weight:bold; color:#8fdfca')
+        self.title = W.QLabel('Pixel Operator for LibreSprite')
+        self.title.setStyleSheet('font-size:22px; font-weight:bold; color:#8fdfca')
         self.layout.addWidget(self.title)
         self.subtitle = W.QLabel('')
         self.layout.addWidget(self.subtitle)
@@ -221,7 +221,7 @@ class Window(W.QMainWindow):
         return control, lab
 
     def error(self, exc):
-        W.QMessageBox.warning(self, 'Pixel Operator', str(exc))
+        W.QMessageBox.warning(self, 'Pixel Operator for LibreSprite', str(exc))
 
     def open_image(self):
         path, _ = W.QFileDialog.getOpenFileName(self, tr('Source image'), str(Path.home()/'Pictures'),

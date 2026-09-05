@@ -43,7 +43,7 @@ jobs:
       - name: Assemble AppDir
         run: |
           set -euxo pipefail
-          APP=dist/Pixel-Operator.AppDir
+          APP=dist/Pixel-Operator-for-LibreSprite.AppDir
           mkdir -p "$APP/usr/bin" "$APP/usr/lib/python" "$APP/usr/lib/pixel-operator"
           cp -a /tmp/python/. "$APP/usr/lib/python/"
           cp app.py automation.py core.py desktop_check.py i18n.py \
@@ -52,7 +52,7 @@ jobs:
           mkdir -p "$APP/usr/share/applications" "$APP/usr/share/icons/hicolor/256x256/apps"
           cp packaging/pixel-operator.desktop "$APP/pixel-operator.desktop"
           cp packaging/pixel-operator.desktop "$APP/usr/share/applications/"
-          python3 -c "from PIL import Image; Image.new('RGBA',(256,256),(63,153,140,255)).save('dist/Pixel-Operator.AppDir/usr/share/icons/hicolor/256x256/apps/pixel-operator.png')"
+          python3 -c "from PIL import Image; Image.new('RGBA',(256,256),(63,153,140,255)).save('dist/Pixel-Operator-for-LibreSprite.AppDir/usr/share/icons/hicolor/256x256/apps/pixel-operator.png')"
           cp "$APP/usr/share/icons/hicolor/256x256/apps/pixel-operator.png" "$APP/"
           chmod +x packaging/AppRun
           cp packaging/AppRun "$APP/AppRun"
@@ -68,12 +68,12 @@ jobs:
         run: |
           set -euxo pipefail
           ARCH=x86_64 /tmp/appimagetool --appimage-extract-and-run \
-            dist/Pixel-Operator.AppDir dist/Pixel-Operator-x86_64.AppImage
+            dist/Pixel-Operator-for-LibreSprite.AppDir dist/Pixel-Operator-for-LibreSprite-x86_64.AppImage
           ls -lh dist/*.AppImage
 
       - name: Upload to Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/Pixel-Operator-x86_64.AppImage
+          files: dist/Pixel-Operator-for-LibreSprite-x86_64.AppImage
           generate_release_notes: true

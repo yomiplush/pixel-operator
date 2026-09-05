@@ -93,7 +93,7 @@ class Desktop:
 
     def key(self, name, guard):
         if self.keyboard is None:
-            self.keyboard = UInput({ecodes.EV_KEY: list(range(1, 249))}, name='Pixel Operator Keyboard')
+            self.keyboard = UInput({ecodes.EV_KEY: list(range(1, 249))}, name='Pixel Operator for LibreSprite Keyboard')
             time.sleep(1)
         ensure_half_width()
         guard()
