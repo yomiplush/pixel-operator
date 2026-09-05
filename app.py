@@ -51,7 +51,10 @@ class Window(W.QMainWindow):
             QSpinBox,QDoubleSpinBox { background:#232c40; padding:5px; }
             QProgressBar { border:1px solid #53627b; text-align:center; }
             QProgressBar::chunk { background:#3a998c; }
-            QComboBox { background:#232c40; border:1px solid #53627b; padding:4px; }''')
+            QComboBox { background:#232c40; border:1px solid #53627b; padding:4px; }
+            QSlider::groove:horizontal { height:6px; background:#232c40; border:1px solid #53627b; border-radius:3px; }
+            QSlider::handle:horizontal { width:14px; background:#8fdfca; border-radius:7px; margin:-5px 0; }
+            QSlider::sub-page:horizontal { background:#3a998c; border-radius:3px; }''')
         self._build()
         self.retranslate()
         self.optimize_geometry()
@@ -105,15 +108,24 @@ class Window(W.QMainWindow):
                   ('Saturation', 'saturation', -100, 100), ('Hue', 'hue', -180, 180)]
         for col, (key, name, lo, hi) in enumerate(labels):
             lab = W.QLabel('')
-            lab.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
+            lab.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignBottom)
             tone.addWidget(lab, 0, col)
-            spin = W.QSpinBox()
-            spin.setRange(lo, hi)
-            spin.setValue(0)
-            spin.setSuffix('')
-            tone.addWidget(spin, 1, col)
-            self.tone_controls[name] = (lab, spin)
-            spin.valueChanged.connect(self.convert)
+            slider = W.QSlider(QtCore.Qt.Orientation.Horizontal)
+            slider.setRange(lo, hi)
+            slider.setValue(0)
+            slider.setTickPosition(W.QSlider.TickPosition.NoTicks)
+            tone.addWidget(slider, 1, col)
+            value = W.QLabel('0')
+            value.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignTop)
+            value.setStyleSheet('font-size:11px; color:#8fdfca')
+            tone.addWidget(value, 2, col)
+            self.tone_controls[name] = (lab, slider, value)
+
+            def changed(v, out=value):
+                out.setText(str(v))
+                self.convert()
+
+            slider.valueChanged.connect(changed)
         pal_label = W.QLabel('')
         tone.addWidget(pal_label, 0, 4)
         self.palette_label = pal_label
