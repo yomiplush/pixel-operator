@@ -59,7 +59,7 @@ class Tests(unittest.TestCase):
         with patch('automation.Desktop') as desktop, patch('automation.watch_escape'):
             desktop.return_value.signature.return_value = (0, 0, 1000, 1000, 'test')
             with self.assertRaises(Cancelled):
-                draw(art, Calibration((10, 10), (40, 70), art.template.size), 1, stop, lambda *a: None, countdown=0)
+                draw(art, Calibration((10, 10), (40, 140), art.template.size), 1, stop, lambda *a: None, countdown=0)
             desktop.return_value.click.assert_not_called()
             desktop.return_value.key.assert_not_called()
 

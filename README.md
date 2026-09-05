@@ -34,7 +34,7 @@ Launch it from your running desktop session (Wayland or X11).
      Boy, Atari 2600, Commodore 64, ZX Spectrum, CGA, DB32, PICO-8, Sweetie-16
      and ~30 more). Preset palettes map every pixel to the nearest fixed color.
 2. Click **Open transfer image in LibreSprite**. The upper part of this image
-   is the drawing area; the bottom row holds the color swatches.
+   is the drawing area; below it the color swatches are shown as solid blocks.
 3. In LibreSprite show the transfer image at an integer zoom level that keeps
    the whole image visible. **About 3200% is recommended** (press `6`, fine-tune
    with `Ctrl++` / `Ctrl+-`). Then pick the pencil (`B`): 1 px brush, opacity

@@ -125,6 +125,32 @@ def _nearest(color, palette):
     return best
 
 
+SWATCH_BLOCK = 3   # solid px per colour (eyedropper-friendly)
+SWATCH_CELL = 4    # block + 1px gap
+
+
+def make_template(width, height, ordered):
+    """Build the transfer template: art area on top, then one solid colour
+    block per used colour below. Blocks are several px and fit `width`
+    columns per row (wrapping to extra rows), so an eyedropper click near the
+    returned centre always lands on that colour even at low zoom."""
+    n = len(ordered)
+    cols = max(1, width // SWATCH_CELL)
+    rows = (n + cols - 1)//cols
+    tpl_h = height + 2 + rows*SWATCH_CELL
+    template = Image.new('RGBA', (width, tpl_h))
+    swatches = []
+    for i, (color, _) in enumerate(ordered):
+        c, r = i % cols, i//cols
+        bx = c*SWATCH_CELL
+        by = height + 2 + r*SWATCH_CELL
+        for y in range(by, by + SWATCH_BLOCK):
+            for x in range(bx, bx + SWATCH_BLOCK):
+                template.putpixel((x, y), (*color, 255))
+        swatches.append((bx + SWATCH_BLOCK//2, by + SWATCH_BLOCK//2))
+    return template, swatches
+
+
 def prepare(source, width=32, height=32, colors=16, dither=False,
             brightness=0, contrast=0, saturation=0, hue=0, palette='auto'):
     """Build an Artwork. `palette` names a preset in PRESET_PALETTES ('auto'
@@ -166,13 +192,7 @@ def prepare(source, width=32, height=32, colors=16, dither=False,
             result.putpixel((x, y), (*color, 255))
             groups.setdefault(color, []).append((x, y))
         ordered = sorted(groups.items(), key=lambda item: -len(item[1]))
-        rows = (len(ordered) + width - 1) // width
-        template = Image.new('RGBA', (width, height + 2 + rows))
-        swatches = []
-        for i, (color, _) in enumerate(ordered):
-            point = (i % width, height + 2 + i // width)
-            template.putpixel(point, (*color, 255))
-            swatches.append(point)
+        template, swatches = make_template(width, height, ordered)
         return Artwork(result, template, ordered, swatches)
 
     if need_tune:
@@ -193,13 +213,7 @@ def prepare(source, width=32, height=32, colors=16, dither=False,
         result.putpixel((x, y), (*rgb, 255))
         groups.setdefault(rgb, []).append((x, y))
     ordered = sorted(groups.items(), key=lambda item: -len(item[1]))
-    rows = (len(ordered) + width - 1) // width
-    template = Image.new('RGBA', (width, height + 2 + rows))
-    swatches = []
-    for i, (color, _) in enumerate(ordered):
-        point = (i % width, height + 2 + i // width)
-        template.putpixel(point, (*color, 255))
-        swatches.append(point)
+    template, swatches = make_template(width, height, ordered)
     return Artwork(result, template, ordered, swatches)
 
 
