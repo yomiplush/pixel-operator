@@ -1,0 +1,134 @@
+name: Build AppImage
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libfuse2 libgl1 libegl1 libxkbcommon0 libdbus-1-3 libxcb-cursor0 \
+            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
+            libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libglib2.0-0 file wget desktop-file-utils
+
+      - name: Fetch relocatable Python
+        run: |
+          set -euxo pipefail
+          wget -q "https://github.com/astral-sh/python-build-standalone/releases/download/20250115/cpython-3.12.8+20250115-x86_64-unknown-linux-gnu-install_only.tar.gz" \
+            -O /tmp/cpython.tar.gz
+          mkdir -p /tmp/python
+          tar -xzf /tmp/cpython.tar.gz -C /tmp/python --strip-components=1
+
+      - name: Install Python deps into relocatable Python
+        run: |
+          set -euxo pipefail
+          /tmp/python/bin/python3 -m pip install --no-cache-dir --upgrade pip
+          /tmp/python/bin/python3 -m pip install --no-cache-dir \
+            PySide6==6.7.3 Pillow python-xlib evdev
+
+      - name: Assemble AppDir
+        run: |
+          set -euxo pipefail
+          APP=dist/Pixel-Operator.AppDir
+          mkdir -p "$APP/usr/bin" "$APP/usr/lib/python" "$APP/usr/lib/pixel-operator"
+          cp -a /tmp/python/. "$APP/usr/lib/python/"
+          # our app
+          cp app.py automation.py core.py desktop_check.py i18n.py \
+             make_sample.py test_core.py sample.png LICENSE README.md \
+             "$APP/usr/lib/pixel-operator/"
+          # metadata
+          mkdir -p "$APP/usr/share/applications" "$APP/usr/share/icons/hicolor/256x256/apps"
+          cat > "$APP/pixel-operator.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Pixel Operator
+Name[ja]=Pixel Operator
+Comment=Convert an image to pixel art and draw it into LibreSprite
+Exec=pixel-operator
+Icon=pixel-operator
+Terminal=false
+Categories=Graphics;2DGraphics;
+EOF
+          cp "$APP/pixel-operator.desktop" "$APP/usr/share/applications/"
+          python3 - <<'PY'
+from PIL import Image
+Image.new('RGBA',(256,256),(63,153,140,255)).save(
+    'dist/Pixel-Operator.AppDir/usr/share/icons/hicolor/256x256/apps/pixel-operator.png')
+PY
+          cp "$APP/usr/share/icons/hicolor/256x256/apps/pixel-operator.png" "$APP/"
+
+      - name: Write AppRun (auto-detect environment)
+        run: |
+          set -euxo pipefail
+          APP=dist/Pixel-Operator.AppDir
+          cat > "$APP/AppRun" <<'EOF'
+#!/bin/sh
+# Pixel Operator - environment auto-detection
+SELF="$(readlink -f "$0")"
+APPDIR="$(dirname "$SELF")"
+PY="$APPDIR/usr/lib/python"
+export PYTHONHOME="$PY"
+export PYTHONPATH="$PY/lib/python3.12/site-packages:$APPDIR/usr/lib/pixel-operator"
+export LD_LIBRARY_PATH="$PY/lib:$LD_LIBRARY_PATH"
+export QT_QPA_PLATFORM_PLUGIN_PATH="$PY/lib/python3.12/site-packages/PySide6/Qt/plugins"
+export QT_PLUGIN_PATH="$PY/lib/python3.12/site-packages/PySide6/Qt/plugins"
+
+# 1) Display server
+if [ -z "$WAYLAND_DISPLAY" ] && [ -z "$DISPLAY" ]; then
+  echo "No display server found (need Wayland or X11)." >&2
+  exit 1
+fi
+# 2) LibreSprite
+if ! command -v libresprite >/dev/null 2>&1; then
+  echo "NOTE: LibreSprite not found. Install it (e.g. from AUR or source) to use the transfer feature." >&2
+fi
+# 3) IME half-width guard is done inside the app (fcitx5-remote) when present.
+# 4) /dev/uinput permission
+if [ ! -w /dev/uinput ]; then
+  echo "NOTE: /dev/uinput is not writable. Join the 'uinput' group or add a udev rule for synthetic keyboard input." >&2
+fi
+# 5) Qt platform: prefer Wayland, fall back to xcb
+if [ -n "$WAYLAND_DISPLAY" ]; then
+  export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
+else
+  export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
+fi
+cd "$APPDIR/usr/lib/pixel-operator" || exit 1
+exec "$PY/bin/python3" app.py "$@"
+EOF
+          chmod +x "$APP/AppRun"
+
+      - name: Fetch appimagetool
+        run: |
+          set -euxo pipefail
+          wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" \
+            -O /tmp/appimagetool
+          chmod +x /tmp/appimagetool
+
+      - name: Package AppImage
+        run: |
+          set -euxo pipefail
+          ARCH=x86_64 /tmp/appimagetool --appimage-extract-and-run \
+            dist/Pixel-Operator.AppDir dist/Pixel-Operator-x86_64.AppImage
+          ls -lh dist/*.AppImage
+
+      - name: Upload to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/Pixel-Operator-x86_64.AppImage
+          generate_release_notes: true

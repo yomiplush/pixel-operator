@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+integration-transfer.png
+*.AppImage
