@@ -148,6 +148,8 @@ class Window(W.QMainWindow):
         self.colors, self.colors_label = self.spin(row, '', 2, 64, 16, 'colors')
         self.dither = W.QCheckBox('')
         row.addWidget(self.dither)
+        self.width.valueChanged.connect(lambda v: self.colors.setMaximum(max(2, v)))
+        self.colors.setMaximum(32)
         for control in (self.width, self.height, self.colors):
             control.valueChanged.connect(self.convert)
         self.dither.toggled.connect(self.convert)
@@ -219,7 +221,7 @@ class Window(W.QMainWindow):
         self.delay = W.QDoubleSpinBox()
         self.delay.setRange(.02, .5)
         self.delay.setDecimals(3)
-        self.delay.setValue(.05)
+        self.delay.setValue(.06)
         row.addWidget(self.delay)
         row.addStretch(1)
         self.ready = W.QCheckBox('')

@@ -165,15 +165,23 @@ def draw(art, calibration, wid, stop, progress, delay=.035, countdown=5):
 
         guard()
         # Select pencil; user verifies 1px / opacity 255 in the preparation step.
+        desktop.key('b', guard)
+        time.sleep(.15)
         total = sum(len(points) for _, points in art.groups)
         done = 0
+        settle = max(delay, .09)
         for (_, points), swatch in zip(art.groups, art.swatches):
+            # 1) Eyedropper, pick the swatch colour.
             desktop.key('i', guard)
-            pause()
+            time.sleep(settle)
             desktop.click(calibration.point(*swatch), guard)
-            pause()
+            time.sleep(settle)
+            # 2) Back to the pencil, pressed twice so the tool change sticks even
+            #    if the first keypress is swallowed by the eyedropper switch-back.
             desktop.key('b', guard)
-            pause()
+            time.sleep(settle)
+            desktop.key('b', guard)
+            time.sleep(settle)
             for point in points:
                 desktop.click(calibration.point(*point), guard)
                 pause()
